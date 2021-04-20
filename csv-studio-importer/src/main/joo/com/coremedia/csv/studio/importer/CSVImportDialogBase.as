@@ -143,8 +143,7 @@ public class CSVImportDialogBase extends UploadDialog {
   }
 
   protected function uploadError(response:XMLHttpRequest):void {
-    var result:RemoteError = RemoteService.createRemoteError(response.responseText, 'POST', response.status,
-            response.statusText);
+    var result:RemoteError = RemoteService.createRemoteError(response);
     var message:String = result.message;
     MessageBoxUtil.showError("Import Status", "Import failed: " + message);
   }
