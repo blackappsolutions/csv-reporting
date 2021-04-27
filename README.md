@@ -13,7 +13,7 @@ Versions of the CSV Reporter extension correspond to CoreMedia releases. For exa
 # Installation
 1. Add the CSV extension to the workspace as a submodule:
     ```
-    git submodule add https://github.com/CoreMedia/csv-reporting.git modules/extensions/csv
+     git submodule add ssh://git@digital.vfc.com:7999/vec/coremedia-csv-extension.git modules/extensions/csv
     ```
 2. Add the csv module to modules/extensions/pom.xml:
     ```
@@ -26,7 +26,7 @@ Versions of the CSV Reporter extension correspond to CoreMedia releases. For exa
 3. Add the “csv” extension to workspace-config/extensions/managed-extensions.txt
 4. Run the CoreMedia Extension Tool to add the csv extension module dependencies:
     ```
-    java -jar tool/extensions.jar --task synchronize --extension-config-file  workspace-configuration/extensions/extension-config.properties --task-input-file workspace-configuration/extensions/managed-extensions.txt
+    mvn -f workspace-configuration/extensions extensions:sync -Denable=csv
     ```
 
 ## URL Configuration
