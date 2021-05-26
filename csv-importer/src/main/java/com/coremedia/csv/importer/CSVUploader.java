@@ -230,7 +230,7 @@ public class CSVUploader extends AbstractSpringAwareUAPIClient {
             FileInputStream fileStream = new FileInputStream(csvFile);
             CSVParser parser = new CSVParser(new BufferedReader(new InputStreamReader(fileStream, "UTF-8")),
                     CSVFormat.EXCEL.withHeader());
-            csvHandler = new CSVParserHelper(autoPublish, getContentRepository(), logger);
+            csvHandler = new CSVParserHelper(autoPublish, getContentRepository(), logger, null);
             logger.info("CSVParser: executing ...");
             csvHandler.parseCSV(parser, reportHeadersToContentProperties);
             logger.info("CSVParser: Completed content upload.");
@@ -270,7 +270,7 @@ public class CSVUploader extends AbstractSpringAwareUAPIClient {
         // Pass the CSV to the CSVParser
         CSVParser parser = new CSVParser(new BufferedReader(new InputStreamReader(fileInputStream, "UTF-8")),
                 CSVFormat.EXCEL.withHeader());
-        csvHandler = new CSVParserHelper(autoPublish, getContentRepository(), logger);
+        csvHandler = new CSVParserHelper(autoPublish, getContentRepository(), logger, null);
         logger.info("CSVParser: executing ...");
         csvHandler.parseCSV(parser, reportHeadersToContentProperties);
         logger.info("CSVParser: Completed content upload.");

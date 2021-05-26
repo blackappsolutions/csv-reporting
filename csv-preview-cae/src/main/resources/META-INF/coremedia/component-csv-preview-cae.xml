@@ -9,7 +9,7 @@
 
   <bean class="com.coremedia.csv.cae.utils.CSVWebSecurityConfiguration"/>
 
-  <util:constant id="csvSettingsPath" static-field="com.coremedia.csv.common.CSVConfig.DEFAULT_SETTINGS_PATH" />
+  <util:constant id="csvSettingsPath" static-field="com.coremedia.csv.common.CSVConfig.DEFAULT_SETTINGS_PATH"/>
 
   <!-- CSV configuration -->
   <bean id="csvConfig" class="com.coremedia.csv.common.CSVConfig">
@@ -18,10 +18,11 @@
   </bean>
 
   <!-- Handlers for CSV exporting -->
-  <bean id="baseCSVHandler" abstract="true" class="com.coremedia.csv.cae.handlers.BaseCSVHandler" />
+  <bean id="baseCSVHandler" abstract="true" class="com.coremedia.csv.cae.handlers.BaseCSVHandler"/>
 
   <bean id="contentSetCSVHandler" class="com.coremedia.csv.cae.handlers.ContentSetCSVHandler" parent="baseCSVHandler">
-    <property name="CSVUtil" ref="contentSetCSVUtil"/>
+    <!--property name="CSVUtil" ref="contentSetCSVUtil"/-->
+    <property name="CSVUtil" ref="customCanonicalResolver"/>
     <property name="CSVConfig" ref="csvConfig"/>
   </bean>
 
@@ -36,6 +37,11 @@
     <property name="contentBatchPrefetchSize" value="100"/>
   </bean>
 
-  <bean id="contentSetCSVUtil" class="com.coremedia.csv.cae.utils.ContentSetCSVUtil" parent="baseCSVUtil"/>
+  <!--bean id="contentSetCSVUtil" class="com.coremedia.csv.cae.utils.ContentSetCSVUtil" parent="baseCSVUtil"/-->
+  <bean id="customCanonicalResolver" class="com.vfcorp.cae.utils.CustomCanonicalResolver" parent="baseCSVUtil">
+    <property name="navigationSegmentsUriHelper" ref="navigationSegmentsUriHelper"/>
+  </bean>
+
+  <bean class="com.vfcorp.cae.VfCsvCaeConfiguration"/>
 
 </beans>

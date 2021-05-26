@@ -266,7 +266,7 @@ public abstract class BaseCSVUtil {
       populateContentPropertyFields(csvRecord, content, headerList, propertiesMap);
 
       // Add custom fields (None by default)
-      populateCustomPropertyFields(csvRecord, content, headerList);
+      populateCustomPropertyFields(csvRecord, content, headerList, propertiesMap); //VFC_ADAPT
 
       // Update record status to success if all fields were successfully set
       csvRecord.put(COLUMN_STATUS, "success");
@@ -445,10 +445,10 @@ public abstract class BaseCSVUtil {
    * @param csvRecord  the CSV record to which to populate the properties of the content
    * @param content    the content from which the property values will be parsed
    * @param headerList the list of headers which determines which metadata is added to the CSV record and which
-   *                   columns will be present in the CSV
    */
   protected abstract void populateCustomPropertyFields(Map<String, String> csvRecord, Content content,
-                                                       List<String> headerList);
+                                                       List<String> headerList,
+                                                       Map<String, String> propertiesMap); //VFC_ADAPT
 
   /**
    * Gets the property value of the specified property name from the specified content.

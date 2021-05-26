@@ -20,7 +20,8 @@ public class ContentSetCSVUtil extends BaseCSVUtil {
    */
   @Override
   protected void populateCustomPropertyFields(Map<String, String> csvRecord, Content content,
-                                              List<String> headerList) {
+                                              List<String> headerList,
+                                              Map<String, String> propertiesMap) { //VFC_ADAPT
     // no-op
   }
 

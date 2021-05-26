@@ -1,25 +1,51 @@
 package com.coremedia.csv.importer;
 
 import com.coremedia.blueprint.common.contentbeans.CMLinkable;
-import com.coremedia.cap.common.*;
-import com.coremedia.cap.content.*;
+import com.coremedia.cap.common.CapPropertyDescriptor;
+import com.coremedia.cap.common.CapPropertyDescriptorType;
+import com.coremedia.cap.common.DuplicateNameException;
+import com.coremedia.cap.common.IdHelper;
+import com.coremedia.cap.common.InvalidNameException;
+import com.coremedia.cap.common.NoSuchTypeException;
+import com.coremedia.cap.content.CheckedOutByOtherException;
+import com.coremedia.cap.content.Content;
+import com.coremedia.cap.content.ContentException;
+import com.coremedia.cap.content.ContentRepository;
+import com.coremedia.cap.content.ContentType;
 import com.coremedia.cap.struct.Struct;
 import com.coremedia.cap.struct.StructService;
 import com.coremedia.xml.Markup;
 import com.coremedia.xml.MarkupFactory;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
-import static com.coremedia.csv.common.CSVConstants.*;
+import static com.coremedia.csv.common.CSVConstants.COLUMN_ID;
+import static com.coremedia.csv.common.CSVConstants.COLUMN_SUBJECT_TAGS;
+import static com.coremedia.csv.common.CSVConstants.PROPERTY_LOCAL_SETTINGS;
+import static com.coremedia.csv.common.CSVConstants.PROPERTY_PICTURES;
+import static com.coremedia.csv.common.CSVConstants.PROPERTY_PREFIX_PICTURES;
+import static com.coremedia.csv.common.CSVConstants.PROPERTY_SUBJECT_TAGS;
+import static com.vfcorp.csv.common.VfCsvConstants.PROPERTY_CUSTOM_CANONICAL;
 
 /**
  * Helper class which handles the parsing of the CSV file and operations done when translating the text into meaningful
@@ -31,6 +57,9 @@ public class CSVParserHelper {
      * The logger for this class.
      */
     private Logger logger;
+
+    @Nullable
+    private String previewRestUrlPrefix; //VFC_ADAPT
 
     /**
      * The content repository.
@@ -88,7 +117,7 @@ public class CSVParserHelper {
     /**
      * Mapping of property name to PropertyValueObjectProcessor.
      */
-    private Map<String, PropertyValueObjectProcessor> propertyValueObjectProcessors;
+    private Map<String, PropertyValueObjectProcessor> propertyValueObjectProcessors = new HashMap<>();
 
     /**
      * Some content don't have local settings - we need to check for this.
@@ -101,18 +130,22 @@ public class CSVParserHelper {
      * @param autoPublish               if updated content should be automatically be published if prior version was published
      * @param originalContentRepository the content repository to upload & edit content
      * @param logger                    the logger for the CSV Uploader
+     * @param previewRestUrlPrefix      can be null, when called from commandline client, no pathSegment resolving is supported here
      */
-    public CSVParserHelper(boolean autoPublish, ContentRepository originalContentRepository, Logger logger) {
+    public CSVParserHelper(boolean autoPublish, ContentRepository originalContentRepository, Logger logger,
+                           @Nullable String previewRestUrlPrefix /*VFC_ADAPT*/) {
         contentRepository = originalContentRepository;
         this.logger = logger;
+        this.previewRestUrlPrefix = previewRestUrlPrefix; //VFC_ADAPT
         contentHelper = new CSVContentHelper(autoPublish, contentRepository, logger);
-
         // This is where you put custom property processors. This is the framework for customizations to easily create
         // new classes to process custom properties. See PropertyValueObjectProcessor interface for implementation.
         // Ideally, when implemented, under this line the following can be added:
-        // propertyValueObjectProcessors.put(PROPERTY_NAME, new CustomPropertyProcessor(logger));
+        PropertyValueObjectProcessor processor = new CustomCanonicalPropertyProcessor(//VFC_ADAPT
+            previewRestUrlPrefix, logger, contentRepository                           //VFC_ADAPT
+        );                                                                            //VFC_ADAPT
+        propertyValueObjectProcessors.put(PROPERTY_CUSTOM_CANONICAL, processor);      //VFC_ADAPT
         // A Spring implementation can also be done for this
-        propertyValueObjectProcessors = new HashedMap();
     }
 
     /**
@@ -368,6 +401,10 @@ public class CSVParserHelper {
                 if (propertyValueObject != null) {
                     Object processedPropertyValueObject = processPropertyValueObject(content, propertyName,
                             propertyValueObject);
+
+                    if (propertyName.equals(PROPERTY_CUSTOM_CANONICAL)) { //VFC_ADAPT
+                        propertyName = PROPERTY_LOCAL_SETTINGS;           //VFC_ADAPT
+                    }                                                     //VFC_ADAPT
 
                     // Properties which require special handling...
                     if (propertyName.contains(PROPERTY_PREFIX_PICTURES)) {

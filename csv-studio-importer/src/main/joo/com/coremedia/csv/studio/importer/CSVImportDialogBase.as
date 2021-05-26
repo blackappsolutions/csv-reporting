@@ -1,20 +1,18 @@
 package com.coremedia.csv.studio.importer {
-import com.coremedia.cap.content.Content;
 import com.coremedia.cms.editor.sdk.upload.FileWrapper;
-import com.coremedia.cms.editor.sdk.upload.UploadManager;
-import com.coremedia.cms.editor.sdk.upload.UploadSettings;
 import com.coremedia.cms.editor.sdk.upload.dialog.FileContainer;
 import com.coremedia.cms.editor.sdk.upload.dialog.FileContainersObservable;
 import com.coremedia.cms.editor.sdk.upload.dialog.UploadDialog;
 import com.coremedia.cms.editor.sdk.util.MessageBoxUtil;
+import com.coremedia.cms.editor.sdk.util.StudioConfigurationUtil;
 import com.coremedia.ui.data.ValueExpression;
 import com.coremedia.ui.data.ValueExpressionFactory;
 import com.coremedia.ui.data.error.RemoteError;
 import com.coremedia.ui.data.impl.RemoteService;
+import com.coremedia.ui.logging.Logger;
 import com.coremedia.ui.util.EventUtil;
 
 import ext.Ext;
-
 import ext.MessageBox;
 import ext.container.Container;
 
@@ -22,12 +20,21 @@ import js.XMLHttpRequest;
 
 public class CSVImportDialogBase extends UploadDialog {
 
+  public static const REPORTING_SETTINGS_NAME:String = "ReportingSettings";     //VFC_ADAPT
+  public static const DEFAULT_TEMPLATE_SETTING:String = "defaultImportTemplate";//VFC_ADAPT
+
   private var fileContainers:FileContainersObservable;
   private var validationExpression:ValueExpression;
   private var uploadDropAreaDisabled:Boolean;
 
   public function CSVImportDialogBase(config:CSVImportDialogBase = null) {
     super(config);
+    showFolderChooser = false; // VFC_ADAPT disables the FolderChooser, as it is not used and confuses the user otherwise
+  }
+
+  protected function getDefaultImportTemplate():String { //VFC_ADAPT
+    var configuration:* = StudioConfigurationUtil.getConfiguration(REPORTING_SETTINGS_NAME, DEFAULT_TEMPLATE_SETTING);
+    return (configuration == null) ? 'default' : configuration;
   }
 
   /**
@@ -163,7 +170,11 @@ public class CSVImportDialogBase extends UploadDialog {
     if (contentName){
       formData.append('contentName', contentName);
     }
-
+    //Start VFC_ADAPT
+    var defaultImportTemplate:String = getDefaultImportTemplate();
+    Logger.info("Template used for import: " + defaultImportTemplate);
+    formData.append('template', defaultImportTemplate);
+    //End VFC_ADAPT
     uploadRequest = new XMLHttpRequest();
 
     uploadRequest.open('POST', url, true);

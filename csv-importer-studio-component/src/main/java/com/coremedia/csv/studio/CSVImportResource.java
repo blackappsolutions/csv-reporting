@@ -6,6 +6,7 @@ import com.coremedia.cap.user.User;
 import com.coremedia.cap.user.UserRepository;
 import com.coremedia.csv.common.CSVConfig;
 import com.coremedia.csv.importer.CSVParserHelper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,6 +32,9 @@ import java.util.List;
 @RequestMapping
 @RestController
 public class CSVImportResource {
+
+  @Value("${studio.previewRestUrlPrefix:}")
+  private String previewRestUrlPrefix; // VFC_ADAPT
 
   /**
    * The content repository from which to retrieve content.
@@ -96,8 +100,7 @@ public class CSVImportResource {
   @PostMapping(value = "importcsv/uploadfile",
           produces = "text/json",
           consumes = "multipart/form-data")
-  public ResponseEntity importCSV(@HeaderParam("site") String siteId,
-                                  @HeaderParam("folderUri") String folderUri,
+  public ResponseEntity importCSV(@RequestParam("template") String template, // VFC_ADAPT
                                   @RequestParam("file") MultipartFile file) throws IOException {
 
     // Check that the user is a member of the requisite group
@@ -106,10 +109,9 @@ public class CSVImportResource {
     }
 
     boolean autoPublish = false;
-    String template = "default";
     BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
     CSVParser parser = new CSVParser(reader, CSVFormat.EXCEL.withHeader());
-    CSVParserHelper handler = new CSVParserHelper(autoPublish, contentRepository, logger);
+    CSVParserHelper handler = new CSVParserHelper(autoPublish, contentRepository, logger, previewRestUrlPrefix);
     handler.parseCSV(parser, csvConfig.getReportHeadersToContentProperties(template));
 
     return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(handler.getFirstContent());
