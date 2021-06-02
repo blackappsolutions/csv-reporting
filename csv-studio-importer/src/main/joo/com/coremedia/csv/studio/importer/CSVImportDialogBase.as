@@ -1,4 +1,5 @@
 package com.coremedia.csv.studio.importer {
+import com.coremedia.cap.struct.Struct;
 import com.coremedia.cms.editor.sdk.upload.FileWrapper;
 import com.coremedia.cms.editor.sdk.upload.dialog.FileContainer;
 import com.coremedia.cms.editor.sdk.upload.dialog.FileContainersObservable;
@@ -7,6 +8,7 @@ import com.coremedia.cms.editor.sdk.util.MessageBoxUtil;
 import com.coremedia.cms.editor.sdk.util.StudioConfigurationUtil;
 import com.coremedia.ui.data.ValueExpression;
 import com.coremedia.ui.data.ValueExpressionFactory;
+import com.coremedia.ui.data.beanFactory;
 import com.coremedia.ui.data.error.RemoteError;
 import com.coremedia.ui.data.impl.RemoteService;
 import com.coremedia.ui.logging.Logger;
@@ -21,20 +23,18 @@ import js.XMLHttpRequest;
 public class CSVImportDialogBase extends UploadDialog {
 
   public static const REPORTING_SETTINGS_NAME:String = "ReportingSettings";     //VFC_ADAPT
-  public static const DEFAULT_TEMPLATE_SETTING:String = "defaultImportTemplate";//VFC_ADAPT
+  public static const TEMPLATES_SETTINGS_NAME:String = "templates";             //VFC_ADAPT
 
   private var fileContainers:FileContainersObservable;
   private var validationExpression:ValueExpression;
   private var uploadDropAreaDisabled:Boolean;
 
+  private var _selectedTemplateValueExpression:ValueExpression; //VFC_ADAPT
+  private var _templatesExpression:ValueExpression; //VFC_ADAPT
+
   public function CSVImportDialogBase(config:CSVImportDialogBase = null) {
     super(config);
     showFolderChooser = false; // VFC_ADAPT disables the FolderChooser, as it is not used and confuses the user otherwise
-  }
-
-  protected function getDefaultImportTemplate():String { //VFC_ADAPT
-    var configuration:* = StudioConfigurationUtil.getConfiguration(REPORTING_SETTINGS_NAME, DEFAULT_TEMPLATE_SETTING);
-    return (configuration == null) ? 'default' : configuration;
   }
 
   /**
@@ -171,9 +171,9 @@ public class CSVImportDialogBase extends UploadDialog {
       formData.append('contentName', contentName);
     }
     //Start VFC_ADAPT
-    var defaultImportTemplate:String = getDefaultImportTemplate();
-    Logger.info("Template used for import: " + defaultImportTemplate);
-    formData.append('template', defaultImportTemplate);
+    var importTemplate:String = getSelectedTemplateValueExpression().getValue();//VFC_ADAPT START
+    Logger.info("Template used for import: " + importTemplate);
+    formData.append('template', importTemplate);
     //End VFC_ADAPT
     uploadRequest = new XMLHttpRequest();
 
@@ -201,5 +201,40 @@ public class CSVImportDialogBase extends UploadDialog {
       uploadError(response);
     }
   }
+
+  //VFC_ADAPT START
+  protected function getSelectedTemplateValueExpression():ValueExpression {
+    if (!_selectedTemplateValueExpression) {
+      _selectedTemplateValueExpression = ValueExpressionFactory.create('selectedTemplate', beanFactory.createLocalBean());
+      _selectedTemplateValueExpression.setValue(null);
+    }
+    return _selectedTemplateValueExpression;
+  }
+
+  protected function getTemplatesExpression():ValueExpression {
+    if (!_templatesExpression) {
+      _templatesExpression = ValueExpressionFactory.createFromFunction(getTemplates);
+    }
+    return _templatesExpression;
+  }
+
+  protected function getTemplates():Array {
+    var templatesConfig:Struct = StudioConfigurationUtil.getConfiguration(REPORTING_SETTINGS_NAME, TEMPLATES_SETTINGS_NAME);
+    var options:Array = [];
+
+    if (templatesConfig) {
+      templatesConfig.getType().getPropertyNames().forEach(function(name:String):void {
+        options.push( {
+          'name': name
+        })
+      });
+    }
+    if(!getSelectedTemplateValueExpression().getValue() && options.length > 0) {
+      getSelectedTemplateValueExpression().setValue(options[0].name);
+    }
+    return options;
+  }
+
+  //VFC_ADAPT END
 }
 }

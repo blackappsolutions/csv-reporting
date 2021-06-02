@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class NavigationResolverHandler {
 
     protected static final String NO_NAVIGATION_FOUND_MSG = "No navigation could be found for '%s'.";
-    private NavigationSegmentsUriHelper navigationSegmentsUriHelper;
+    private final NavigationSegmentsUriHelper navigationSegmentsUriHelper;
 
     public NavigationResolverHandler(NavigationSegmentsUriHelper navigationSegmentsUriHelper) {
         this.navigationSegmentsUriHelper = navigationSegmentsUriHelper;

@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Required;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -97,7 +98,7 @@ public class CSVUploader extends AbstractSpringAwareUAPIClient {
     /**
      * Logger for this class.
      */
-    private Logger logger;
+    private final Logger logger;
 
     /**
      * The handler class which will parse the CSV and import the data into the respective content.
@@ -228,7 +229,7 @@ public class CSVUploader extends AbstractSpringAwareUAPIClient {
           try {
             // Pass the CSV to the CSVParser
             FileInputStream fileStream = new FileInputStream(csvFile);
-            CSVParser parser = new CSVParser(new BufferedReader(new InputStreamReader(fileStream, "UTF-8")),
+            CSVParser parser = new CSVParser(new BufferedReader(new InputStreamReader(fileStream, StandardCharsets.UTF_8)),
                     CSVFormat.EXCEL.withHeader());
             csvHandler = new CSVParserHelper(autoPublish, getContentRepository(), logger, null);
             logger.info("CSVParser: executing ...");
@@ -268,7 +269,7 @@ public class CSVUploader extends AbstractSpringAwareUAPIClient {
 
       try {
         // Pass the CSV to the CSVParser
-        CSVParser parser = new CSVParser(new BufferedReader(new InputStreamReader(fileInputStream, "UTF-8")),
+        CSVParser parser = new CSVParser(new BufferedReader(new InputStreamReader(fileInputStream, StandardCharsets.UTF_8)),
                 CSVFormat.EXCEL.withHeader());
         csvHandler = new CSVParserHelper(autoPublish, getContentRepository(), logger, null);
         logger.info("CSVParser: executing ...");

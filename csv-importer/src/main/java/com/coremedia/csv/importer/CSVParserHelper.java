@@ -56,20 +56,20 @@ public class CSVParserHelper {
     /**
      * The logger for this class.
      */
-    private Logger logger;
+    private final Logger logger;
 
     @Nullable
-    private String previewRestUrlPrefix; //VFC_ADAPT
+    private final String previewRestUrlPrefix; //VFC_ADAPT
 
     /**
      * The content repository.
      */
-    private ContentRepository contentRepository;
+    private final ContentRepository contentRepository;
 
     /**
      * Helper class which handles operations done in the content repository on content.
      */
-    private CSVContentHelper contentHelper;
+    private final CSVContentHelper contentHelper;
 
     /**
      * The root folder which contains all subject taxonomies in the content.
@@ -107,7 +107,7 @@ public class CSVParserHelper {
     /**
      * The general date format the reporting tool will use when converting dates into Strings.
      */
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss");
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss");
 
     /**
      * The number of documents that must be imported before performing a publish.
@@ -117,7 +117,7 @@ public class CSVParserHelper {
     /**
      * Mapping of property name to PropertyValueObjectProcessor.
      */
-    private Map<String, PropertyValueObjectProcessor> propertyValueObjectProcessors = new HashMap<>();
+    private final Map<String, PropertyValueObjectProcessor> propertyValueObjectProcessors = new HashMap<>();
 
     /**
      * Some content don't have local settings - we need to check for this.

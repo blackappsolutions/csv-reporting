@@ -8,7 +8,6 @@ import com.coremedia.cap.struct.Struct;
 import com.coremedia.cap.struct.StructBuilder;
 import com.coremedia.cap.struct.StructService;
 import com.vfcorp.csv.common.VfCsvConstants;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
@@ -44,9 +43,9 @@ import static com.vfcorp.csv.common.VfCsvConstants.CUSTOM_CANONICAL;
 public class CustomCanonicalPropertyProcessor implements PropertyValueObjectProcessor {
     private final StructService structService;
     private final ContentType cmLinkableType;
-    private ContentRepository contentRepository;
-    private String previewRestUrlPrefix;
-    private Logger logger;
+    private final ContentRepository contentRepository;
+    private final String previewRestUrlPrefix;
+    private final Logger logger;
 
     public CustomCanonicalPropertyProcessor(String previewRestUrlPrefix, Logger logger, ContentRepository contentRepository) {
         this.previewRestUrlPrefix = previewRestUrlPrefix;
@@ -64,7 +63,15 @@ public class CustomCanonicalPropertyProcessor implements PropertyValueObjectProc
      */
     @Override
     public Object process(Content content, String propertyName, Object propertyValueObject) {
-        if (!StringUtils.isEmpty(propertyValueObject.toString())) {
+        // If a whitespace string was given, we eliminate the current setting, if present.
+        // NotNull-check was done by the caller in com.coremedia.csv.importer.CSVParserHelper.convertStringProperties
+        if (propertyValueObject.toString().trim().isEmpty()) {
+            Struct localSettings = getLocalSettings(content);
+            if (localSettings.get(CUSTOM_CANONICAL) != null) {
+                return getStructBuilder(localSettings).remove(CUSTOM_CANONICAL).build().toMarkup().toString();
+            }
+        }
+        else {
             String navigationID = getNavigationID(propertyValueObject);
             if (navigationID != null) {
                 Content navigation = contentRepository.getContent(navigationID);

@@ -1,9 +1,40 @@
 <?xml version="1.0"?>
 <importer:CSVImportDialogBase xmlns:fx="http://ns.adobe.com/mxml/2009"
+                              xmlns="exml:ext.config"
+                              xmlns:exml="http://www.jangaroo.net/exml/0.8"
+                              xmlns:ui="exml:com.coremedia.ui.config"
                               xmlns:importer="com.coremedia.csv.studio.importer.*">
   <fx:Script><![CDATA[
     private var config:CSVImportDialog;
 
     public native function CSVImportDialog(config:CSVImportDialog = null);
     ]]></fx:Script>
+  <importer:plugins exml:mode="append">
+    <ui:AddItemsPlugin>
+      <ui:items>
+        <ui:LocalComboBox id="templateSelectorComboBox"
+                          fieldLabel="{resourceManager.getString('com.coremedia.csv.studio.importer.CSVImportStudioPlugin', 'importDialog_templateSelector_label')}"
+                          encodeItems="true"
+                          width="310"
+                          allowBlank="false"
+                          displayField="name">
+          <ui:plugins exml:mode="append">
+            <ui:BindListPlugin bindTo="{getTemplatesExpression()}">
+              <ui:fields>
+                <ui:DataField name="name"
+                              encode="false"/>
+              </ui:fields>
+            </ui:BindListPlugin>
+            <ui:BindPropertyPlugin componentEvent="change"
+                                   componentProperty="value"
+                                   bidirectional="true"
+                                   bindTo="{getSelectedTemplateValueExpression()}"/>
+          </ui:plugins>
+        </ui:LocalComboBox>
+      </ui:items>
+      <ui:before>
+        <Component itemId="{DROP_BOX}" />
+      </ui:before>
+    </ui:AddItemsPlugin>
+  </importer:plugins>
 </importer:CSVImportDialogBase>
