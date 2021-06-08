@@ -1,6 +1,7 @@
 package com.coremedia.csv.importer;
 
 import com.coremedia.blueprint.common.contentbeans.CMLinkable;
+import com.coremedia.cap.common.CapPropertyDescriptor;
 import com.coremedia.cap.content.Content;
 import com.coremedia.cap.content.ContentRepository;
 import com.coremedia.cap.content.ContentType;
@@ -70,8 +71,7 @@ public class CustomCanonicalPropertyProcessor implements PropertyValueObjectProc
             if (localSettings.get(CUSTOM_CANONICAL) != null) {
                 return getStructBuilder(localSettings).remove(CUSTOM_CANONICAL).build().toMarkup().toString();
             }
-        }
-        else {
+        } else {
             String navigationID = getNavigationID(propertyValueObject);
             if (navigationID != null) {
                 Content navigation = contentRepository.getContent(navigationID);
@@ -87,7 +87,7 @@ public class CustomCanonicalPropertyProcessor implements PropertyValueObjectProc
     }
 
     private void setCustomCanonical(Content navigation, Struct localSettings, StructBuilder structBuilder) {
-        if (localSettings.get(CUSTOM_CANONICAL) == null) {
+        if ((localSettings.get(CUSTOM_CANONICAL) == null) && (structBuilder.getDescriptor(CUSTOM_CANONICAL) == null)) {
             structBuilder.declareLink(CUSTOM_CANONICAL, cmLinkableType, navigation);
         } else {
             structBuilder.set(CUSTOM_CANONICAL, navigation);
@@ -96,7 +96,10 @@ public class CustomCanonicalPropertyProcessor implements PropertyValueObjectProc
 
     private StructBuilder getStructBuilder(Struct localSettings) {
         StructBuilder structBuilder = structService.createStructBuilder();
-        structBuilder.setAll(localSettings.toNestedMaps());
+        // https://documentation.coremedia.com/cmcc-10/artifacts/2104.1/javadoc/common/com/coremedia/cap/struct/StructBuilder.html
+        for (CapPropertyDescriptor descriptor : localSettings.getType().getDescriptors()) {
+            structBuilder.declare(descriptor, localSettings.get(descriptor.getName()));
+        }
         return structBuilder;
     }
 
