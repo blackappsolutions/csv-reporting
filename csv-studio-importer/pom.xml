@@ -35,6 +35,22 @@
       <artifactId>ext-as</artifactId>
       <type>swc</type>
     </dependency>
+
+    <dependency>
+      <groupId>com.coremedia.ui.toolkit</groupId>
+      <artifactId>client-core</artifactId>
+      <type>swc</type>
+    </dependency>
+    <dependency>
+      <groupId>com.coremedia.cms</groupId>
+      <artifactId>studio-client.cap-base-models</artifactId>
+      <type>swc</type>
+    </dependency>
+    <dependency>
+      <groupId>com.coremedia.ui.toolkit</groupId>
+      <artifactId>client-core-impl</artifactId>
+      <type>swc</type>
+    </dependency>
   </dependencies>
 
   <build>
@@ -52,6 +68,7 @@
         <version>${jangaroo.version}</version>
         <extensions>true</extensions>
         <configuration>
+          <extNamespace>com.coremedia.csv.studio</extNamespace>
           <namespaces>
             <namespace>
               <uri>exml:com.coremedia.csv.studio.config</uri>
