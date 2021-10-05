@@ -1,6 +1,12 @@
 package com.coremedia.csv.cae.utils;
 
+import com.coremedia.cae.security.CaeCsrfConfigurationProperties;
+import com.coremedia.cae.security.CaeCsrfIgnoringRequestMatcher;
+import com.coremedia.cms.delivery.configuration.DeliveryConfigurationProperties;
+import com.coremedia.elastic.social.springsecurity.SocialWebSecurityConfigurerAdapter;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -15,7 +21,11 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
  */
 @EnableWebSecurity
 @Order(1)
-public class CSVWebSecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class CSVWebSecurityConfiguration extends SocialWebSecurityConfigurerAdapter {
+
+  public CSVWebSecurityConfiguration(CaeCsrfConfigurationProperties caeCsrfConfigurationProperties, CaeCsrfIgnoringRequestMatcher[] csrfIgnoringRequestMatchers, DeliveryConfigurationProperties deliveryConfigurationProperties, ObjectProvider<AuthenticationProvider> authenticationProvider) {
+    super(caeCsrfConfigurationProperties, csrfIgnoringRequestMatchers, deliveryConfigurationProperties, authenticationProvider);
+  }
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {

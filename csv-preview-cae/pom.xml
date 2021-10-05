@@ -17,6 +17,10 @@
 
   <dependencies>
     <dependency>
+      <groupId>com.coremedia.elastic.social</groupId>
+      <artifactId>social-spring-security</artifactId>
+    </dependency>
+    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>contentbeans</artifactId>
       <version>${project.version}</version>
