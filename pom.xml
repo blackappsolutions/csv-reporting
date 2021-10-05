@@ -13,7 +13,7 @@
   </properties>
 
   <modules>
-    <module>csv-cmd</module>
+    <!--module>csv-cmd</module-->
     <module>csv-common</module>
     <module>csv-importer</module>
     <module>csv-importer-studio-component</module>
